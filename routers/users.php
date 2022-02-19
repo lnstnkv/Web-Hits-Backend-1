@@ -14,7 +14,7 @@
             }
             else{
 
-                $sql = "SELECT userId, username,roleId,name,surname FROM users WHERE userId= '$userId'"; //GET /users//{userId}
+                $sql = "SELECT userId, username,roleId,name,surname FROM users WHERE userId = '$userId'"; //GET /users//{userId}
             }
             $link = mysqli_connect("127.0.0.1", "backend", "password", "backend");
             
