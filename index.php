@@ -64,7 +64,7 @@
    $url=rtrim($url,'/');
    $urlList=explode('/',$url);
 
-  // echo json_encode($urlList);
+ // echo json_encode($urlList[1]);
 
    $router=$urlList[0];
    $requestData=getData(getMethod());
