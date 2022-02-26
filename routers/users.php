@@ -2,17 +2,41 @@
 
 function route($method, $urlList, $requestData)
 {
-
+    $link = mysqli_connect("127.0.0.1", "backend", "password", "backend");
     switch ($method) {
         case 'GET':
-            # code...
+            
+            $token = substr(getallheaders()['Authorization'],7);
+            $userFromToken = $link->query("SELECT userId from tokens where value='$token'")->fetch_assoc();
+            
+            
+            if(!is_null($userFromToken)){
+
+                $userId = $userFromToken['userId'];
+                $user= $link -> query("SELECT * FROM users WHERE userId = '$userId'")->fetch_assoc();
+               
+                if(!is_null($user)){
+                    echo json_encode( $user);
+                }
+                else{
+                    echo "400";
+                }
+
+
+                
+           }
+           else{
+                echo "404: input data incorrect";
+           }
+            
+
             break;
         case 'POST':
 
-            $link = mysqli_connect("127.0.0.1", "backend", "password", "backend");
+           
             $login = $requestData->body->username;
             $user = $link->query("SELECT userId from users where username='$login'")->fetch_assoc();
-            
+
             if (is_null($user)) {
                 $password = hash("sha1", $requestData->body->password);
                 $name = $requestData->body->name;
