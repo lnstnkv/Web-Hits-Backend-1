@@ -16,13 +16,21 @@ function route($method, $urlList, $requestData)
 
                 if (!is_null($user)) {
                     
-                    echo "Я ТУТА";
-                    $topics = $Link->query("SELECT * FROM topics")->fetch_assoc();
-                    echo json_encode($topics);
-
+                    $result = mysqli_query($Link, "SELECT * FROM `topics`");
+                    $topics = mysqli_fetch_all($result, MYSQLI_ASSOC);
+                    if (is_null($topics)){ 
+                         setHTTPStatus("400", "ПРИДУМАЙ!"); 
+                    }
+                    else
+                    {
+                        echo json_encode( $topics);
+                      
+                    }
+                    
                 } else {
                     setHTTPStatus("400", "ПРИДУМАЙ!");
                 }
+
             } else {
                 echo "404: input data incorrect";
             }
