@@ -1,5 +1,10 @@
 <?php
 
+include_once 'helpers/helpers.php';
+
+global $Link;
+
+
 function getData($method)
 {
     $data = new stdClass();
@@ -23,12 +28,13 @@ function getMethod()
 
 header('Content-type:application/json');
 
-$link = mysqli_connect("127.0.0.1", "backend", "password", "backend");
+$Link = mysqli_connect("127.0.0.1", "backend", "password", "backend");
 
-if (!$link) {
-    echo "Ошибка: Невозможно установить соединение с MySQL." . PHP_EOL;
+if (!$Link) {
+    /*echo "Ошибка: Невозможно установить соединение с MySQL." . PHP_EOL;
     echo "Код ошибки errno: " . mysqli_connect_errno() . PHP_EOL;
-    echo "Текст ошибки error: " . mysqli_connect_error() . PHP_EOL;
+    echo "Текст ошибки error: " . mysqli_connect_error() . PHP_EOL;*/
+    setHTTPStatus("500", "DB Connection error: " . mysqli_connect_error());
     exit;
 }
 
@@ -36,7 +42,7 @@ $message = [];
 $message["users"] = [];
 
 
-$res = $link->query("SELECT userId, userName, roleId FROM users ORDER BY userId ASC");
+/*$res = $Link->query("SELECT userId, userName, roleId FROM users ORDER BY userId ASC");
 if (!$res) //SQL
 {
     echo "Не удалось выполнить запрос: (" . $mysqli->errno . ") " . $mysqli->error;
@@ -51,6 +57,7 @@ if (!$res) //SQL
         ];
     }
 }
+*/
 
 
 $url = isset($_GET['q']) ? $_GET['q'] : '';
@@ -69,3 +76,6 @@ if (file_exists(realpath(dirname(__FILE__)) . '/routers/' . $router . '.php')) {
 } else {
     echo "NOPE 404";
 }
+mysqli_close($Link);
+return;
+// смерть БД  
