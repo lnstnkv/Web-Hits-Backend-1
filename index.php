@@ -42,25 +42,6 @@ if (!$Link) {
 $message = [];
 $message["users"] = [];
 
-
-/*$res = $Link->query("SELECT userId, userName, roleId FROM users ORDER BY userId ASC");
-if (!$res) //SQL
-{
-    echo "Не удалось выполнить запрос: (" . $mysqli->errno . ") " . $mysqli->error;
-} else {
-    while ($row = $res->fetch_assoc()) {
-        $message["users"][] = [
-            "userId" => $row['userId'],
-            "userName" => $row['userName'],
-            "roleId" => $row['roleId']
-
-
-        ];
-    }
-}
-*/
-
-
 $url = isset($_GET['q']) ? $_GET['q'] : '';
 $url = rtrim($url, '/');
 $urlList = explode('/', $url);
