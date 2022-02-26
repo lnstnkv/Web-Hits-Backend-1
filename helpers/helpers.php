@@ -19,7 +19,10 @@
                 break;
             case '403':
                 $status= 'HTTP/1.0 403 Permission denied';
-                break;    
+                break;
+            case '403':
+                $status= 'HTTP/1.0 403 Permission denied';
+                break;      
             case '500':
                 $status= 'HTTP/1.0 500 Unexpected error';
                 break;

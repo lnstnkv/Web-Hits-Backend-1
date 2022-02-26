@@ -1,6 +1,7 @@
 <?php
 
 include_once 'helpers/helpers.php';
+include_once 'helpers/validation.php';
 
 global $Link;
 

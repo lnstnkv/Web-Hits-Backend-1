@@ -1,61 +1,67 @@
 <?php
 
+include_once "user/user_helper.php";
 function route($method, $urlList, $requestData)
 {
-    $link = mysqli_connect("127.0.0.1", "backend", "password", "backend");
+    global $Link;
     switch ($method) {
         case 'GET':
-            
-            $token = substr(getallheaders()['Authorization'],7);
-            $userFromToken = $link->query("SELECT userId from tokens where value='$token'")->fetch_assoc();
-            
-            
-            if(!is_null($userFromToken)){
+
+            $token = substr(getallheaders()['Authorization'], 7);
+            $userFromToken = $Link->query("SELECT userId from tokens where value='$token'")->fetch_assoc();
+
+
+            if (!is_null($userFromToken)) {
 
                 $userId = $userFromToken['userId'];
-                $user= $link -> query("SELECT * FROM users WHERE userId = '$userId'")->fetch_assoc();
-               
-                if(!is_null($user)){
-                    echo json_encode( $user);
-                }
-                else{
+                $user = $Link->query("SELECT * FROM users WHERE userId = '$userId'")->fetch_assoc();
+
+                if (!is_null($user)) {
+                    echo json_encode($user);
+                } else {
                     echo "400";
                 }
-
-
-                
-           }
-           else{
+            } else {
                 echo "404: input data incorrect";
-           }
-            
+            }
+
 
             break;
         case 'POST':
 
-           
             $login = $requestData->body->username;
-            $user = $link->query("SELECT userId from users where username='$login'")->fetch_assoc();
+            if(!validatePassword($requestData->body->password)){
+                
+                setHTTPStatus("403", "Password is less then 8 characters");
+                return; 
 
-            if (is_null($user)) {
-                $password = hash("sha1", $requestData->body->password);
-                $name = $requestData->body->name;
-                $username = $requestData->body->username;
-                $surname = $requestData->body->surname;
-                $roleId = $requestData->body->roleId;
-                $userInsertRezult = $link->query("INSERT INTO users( username, password, surname, name, roleId) VALUES('$username', '$password' , '$surname', '$name' , '$roleId')");
-
-                if (!$userInsertRezult) {
-                    //400
-                    echo "to bad";
-                } else {
-                    echo "success";
-                }
-
-                echo json_encode($requestData);
-            } else {
-                echo "EXIST";
             }
+            $password = hash("sha1", $requestData->body->password);
+            $name = $requestData->body->name;
+            $username = $requestData->body->username;
+            if(!validateStringNotLess($username, 3)){
+                
+                setHTTPStatus("403", "Username is less then 3 characters");
+                return; 
+
+            }
+     
+            $surname = $requestData->body->surname;
+            $roleId = $requestData->body->roleId;
+            $userInsertRezult = $Link->query("INSERT INTO users( username, password, surname, name, roleId) VALUES('$username', '$password' , '$surname', '$name' , '$roleId')");
+
+            if (!$userInsertRezult) {
+
+                if ($Link->errno == 1062) {
+                    setHTTPStatus("409", "Login '$login' is taken");
+                    return;
+                }
+            } else {
+                setHTTPStatus("200", "User '$login' was succesfully created");
+            }
+
+            echo json_encode($requestData);
+
             break;
 
         default:
