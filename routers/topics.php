@@ -7,30 +7,35 @@ function route($method, $urlList, $requestData)
     global $Link;
     switch ($method) {
         case 'GET':
+            if (checkToken()) {
 
-          
-
-                if (checkToken()) {
-
-                    if ($urlList[1]) {
-                        $result = mysqli_query($Link, "SELECT * FROM topics WHERE id= $urlList[1] ");
+                if ($urlList[1]) {
+                    $result = mysqli_query($Link, "SELECT * FROM topics WHERE id = $urlList[1] ");
+                    $topic = mysqli_fetch_all($result, MYSQLI_ASSOC);
+                    if (is_null($topic)) {
+                        setHTTPStatus("400", "ПРИДУМАЙ!");
+                    } else {
+                        echo json_encode($topic);
+                    }
+                    if ($urlList[2] == "childs") { // chaild
+                        $result = mysqli_query($Link, "SELECT * FROM topics WHERE parentId = $urlList[1] ");
                         $topic = mysqli_fetch_all($result, MYSQLI_ASSOC);
                         if (is_null($topic)) {
                             setHTTPStatus("400", "ПРИДУМАЙ!");
                         } else {
                             echo json_encode($topic);
                         }
+                    }
+                } else {
+                    $result = mysqli_query($Link, "SELECT * FROM topics");
+                    $topics = mysqli_fetch_all($result, MYSQLI_ASSOC);
+                    if (is_null($topics)) {
+                        setHTTPStatus("400", "ПРИДУМАЙ!");
                     } else {
-                        $result = mysqli_query($Link, "SELECT * FROM topics");
-                        $topics = mysqli_fetch_all($result, MYSQLI_ASSOC);
-                        if (is_null($topics)) {
-                            setHTTPStatus("400", "ПРИДУМАЙ!");
-                        } else {
-                            echo json_encode($topics);
-                        }
+                        echo json_encode($topics);
                     }
                 }
-             else {
+            } else {
                 setHTTPStatus("403", "Permission denied. Authorization token are invalid");
             }
 
@@ -56,6 +61,16 @@ function route($method, $urlList, $requestData)
 
             echo json_encode($requestData);
 
+            if ($urlList[1] && $urlList[2] == "childs") { // childs
+                $result = mysqli_query($Link, "SELECT * FROM topics WHERE parentId = $urlList[1] ");
+                $topic = mysqli_fetch_all($result, MYSQLI_ASSOC);
+                if (is_null($topic)) {
+                    setHTTPStatus("400", "ПРИДУМАЙ!");
+                } else {
+                    echo json_encode($topic);
+                }
+            }
+
             break;
         case 'PATCH':
 
@@ -80,7 +95,7 @@ function route($method, $urlList, $requestData)
                     $userUpdate = $Link->query("UPDATE topics SET $name $parentId WHERE id= $urlList[1]");
                     if (!$userUpdate) {
                         echo json_encode("400");
-                        echo json_encode($Link -> error);
+                        echo json_encode($Link->error);
                     } else {
                         echo json_encode($topic);
                     }
@@ -89,7 +104,7 @@ function route($method, $urlList, $requestData)
             break;
 
         case 'DELETE':
-        
+
             if ($urlList[1]) {
                 $findTopicRezult = mysqli_query($Link, "SELECT * FROM topics WHERE id= $urlList[1] ");
                 $topic = mysqli_fetch_all($findTopicRezult, MYSQLI_ASSOC);
@@ -98,20 +113,18 @@ function route($method, $urlList, $requestData)
                 } else {
                     $sql = "DELETE FROM users WHERE userId=$urlList[1]";
                     $topicDelete = $Link->query($sql);
-                     if (!$topicDelete) {
-                    echo json_encode($Link->error);
-                } else {
-                    setHTTPStatus("200", "ОК");
-                
-                }
-                   
+                    if (!$topicDelete) {
+                        echo json_encode($Link->error);
+                    } else {
+                        setHTTPStatus("200", "ОК");
+                    }
                 }
             }
-        
-        
-        
-        
-        
+
+
+
+
+
             break;
         default:
 
