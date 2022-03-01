@@ -51,7 +51,25 @@ function route($method, $urlList, $requestData)
 
 
             break;
+        case 'POST':
+            if ($urlList[1]){
+                $roleId = $requestData->body->roleId;
+                $userRoleIdRezult = $Link->query("UPDATE users SET roleId=$roleId WHERE userId=$urlList[1]");
+                if(!$userRoleIdRezult)
+                {
+                    echo json_encode("400");
+                    echo json_encode($Link -> error);
+                }else{
+                    setHTTPStatus("200", "ОК");
+                }
+            }
 
+
+
+
+
+
+            break;
         case 'PATCH':
             if ($urlList[1]) {
                 $sql = "SELECT userId, username,roleId,name,surname FROM users WHERE userId = $urlList[1]"; //PATCH /users//{userId}
@@ -99,26 +117,7 @@ function route($method, $urlList, $requestData)
             }
             break;
         default:
-            # code...
+            setHTTPStatus("400", "Something went wrong in method $method.");
             break;
     }
 }
-
-                /* $name = $requestData->body->name;
-                    if(empty($name))
-                    {
-                        echo "ehfff";
-                    }
-                    $surname = $requestData->body->surname;
-                    $password = hash("sha1", $requestData->body->password);
-                    $userUpdate = $Link->query("UPDATE users SET name='$name', surname='$surname', password='$password' WHERE userId=$urlList[1]");
-                   
-                    if($userUpdate){
-                        $userSelectIntoUpdate = mysqli_fetch_all($findUserResult, MYSQLI_ASSOC);
-                        echo json_encode($userSelectIntoUpdate);
-                    }
-                    else
-                    {
-                        echo json_encode($Link -> error);
-                    }
-                    */
