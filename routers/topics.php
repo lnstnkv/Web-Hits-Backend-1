@@ -117,9 +117,9 @@ function route($method, $urlList, $requestData)
         
         
         
-            break;
+        break;
         default:
-
+            setHTTPStatus("400", "Something went wrong in method $method.");
             break;
     }
 }

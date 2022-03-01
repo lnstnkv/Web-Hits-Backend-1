@@ -65,10 +65,6 @@ function route($method, $urlList, $requestData)
             }
 
 
-
-
-
-
             break;
         case 'PATCH':
             if ($urlList[1]) {
