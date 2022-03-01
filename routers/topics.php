@@ -7,7 +7,8 @@ function route($method, $urlList, $requestData)
     global $Link;
     switch ($method) {
         case 'GET':
-            if (checkToken()) {
+           
+            if (checkToken() && isAdmin()) {
 
                 if ($urlList[1]) {
                     $result = mysqli_query($Link, "SELECT * FROM topics WHERE id = $urlList[1] ");
