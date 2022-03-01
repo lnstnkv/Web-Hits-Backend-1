@@ -1,20 +1,16 @@
 <?php
+
+include_once "headers/authorization.php";
+
 function route($method, $urlList, $requestData)
 {
     global $Link;
     switch ($method) {
         case 'GET':
 
-            $token = substr(getallheaders()['Authorization'], 7);
-            $userFromToken = $Link->query("SELECT userId from tokens where value='$token'")->fetch_assoc();
+          
 
-
-            if (!is_null($userFromToken)) {
-
-                $userId = $userFromToken['userId'];
-                $user = $Link->query("SELECT * FROM users WHERE userId = '$userId'")->fetch_assoc();
-
-                if (!is_null($user)) {
+                if (checkToken()) {
 
                     if ($urlList[1]) {
                         $result = mysqli_query($Link, "SELECT * FROM topics WHERE id= $urlList[1] ");
@@ -34,10 +30,9 @@ function route($method, $urlList, $requestData)
                         }
                     }
                 }
-            } else {
+             else {
                 setHTTPStatus("403", "Permission denied. Authorization token are invalid");
             }
-
 
             break;
 
@@ -101,14 +96,14 @@ function route($method, $urlList, $requestData)
                 if (is_null($topic)) {
                     setHTTPStatus("400", "ПРИДУМАЙ!");
                 } else {
-                    $sql = "DELETE FROM topics WHERE id= $urlList[1]";
+                    $sql = "DELETE FROM users WHERE userId=$urlList[1]";
                     $topicDelete = $Link->query($sql);
-                    if (!$topicDelete) {
-                        echo json_encode($Link->error);
-                    } else {
-                        setHTTPStatus("200", "ОК");
-                    
-                    }
+                     if (!$topicDelete) {
+                    echo json_encode($Link->error);
+                } else {
+                    setHTTPStatus("200", "ОК");
+                
+                }
                    
                 }
             }
@@ -117,9 +112,9 @@ function route($method, $urlList, $requestData)
         
         
         
-        break;
+            break;
         default:
-            setHTTPStatus("400", "Something went wrong in method $method.");
+
             break;
     }
 }

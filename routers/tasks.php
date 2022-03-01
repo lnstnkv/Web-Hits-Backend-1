@@ -28,6 +28,7 @@ function route($method, $urlList, $requestData)
                     }
                 }
             } else {
+
                 $name = $requestData->body->name;
                 $topicId = $requestData->body->topicId;
                 $description = $requestData->body->description;
@@ -78,7 +79,30 @@ function route($method, $urlList, $requestData)
             }
             break;
         case 'PATCH':
-            # code...
+            if ($urlList[1]) {
+                $sql = "SELECT * FROM tasks WHERE id=$urlList[1]"; //PATCH /users//{userId}
+                $findTaskResult = mysqli_query($Link, $sql);
+
+                $name = $requestData->body->name;
+                $topicId = $requestData->body->topicId;
+                $description = $requestData->body->description;
+                $price = $requestData->body->price;
+                $description = str_replace("'", "\'", $description);
+             
+                if ($findTaskResult) {
+                    $taskUpdate = $Link->query("UPDATE tasks SET name= '$name', topicId=$topicId, description='$description', price=$price WHERE id=$urlList[1]");
+                   
+                    if ($taskUpdate) {
+                        $taskSelectIntoUpdate = mysqli_fetch_all($findTaskResult, MYSQLI_ASSOC);
+                        echo json_encode($taskSelectIntoUpdate);
+                    } else {
+                        setHTTPStatus('400', "Something went wrong in method $method/tasks");
+                        echo json_encode($Link->error);
+                    }
+                } else {
+                    setHTTPStatus('400', "This is no task with id = $urlList[1] ");
+                }
+            }
             break;
         case 'DELETE':
 
