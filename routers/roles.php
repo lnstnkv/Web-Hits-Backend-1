@@ -1,7 +1,13 @@
 <?php
+
+include_once "headers/authorization.php";
 function route($method, $urlList, $requestData)
 {
     global $Link;
+    if (checkToken() == false) {
+        setHTTPStatus("403", "Permission denied. Authorization token are invalid");
+        return;
+    }
     switch ($method) {
         case 'GET':
             if ($urlList[1]) {

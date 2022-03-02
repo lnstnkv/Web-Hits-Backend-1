@@ -41,10 +41,12 @@ function isAdmin(): bool
     $user = $Link->query("SELECT roleId from users join tokens ON users.userId = tokens.userId ")->fetch_assoc();
 
     foreach($user as $k=>$row){
-        $nr = $row[0];
+        $id = $row[0];
       } 
-    if ($nr==1){
+    if ($id==1){
         return true;
     }
     return false;
 }
+
+

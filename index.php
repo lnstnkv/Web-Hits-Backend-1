@@ -29,12 +29,10 @@ function getMethod()
 
 header('Content-type:application/json');
 
-$Link = mysqli_connect("127.0.0.1", "backend", "password", "backend");
+$Link = mysqli_connect("127.0.0.1", "backend", "backend", "backend");
 
 if (!$Link) {
-    /*echo "Ошибка: Невозможно установить соединение с MySQL." . PHP_EOL;
-    echo "Код ошибки errno: " . mysqli_connect_errno() . PHP_EOL;
-    echo "Текст ошибки error: " . mysqli_connect_error() . PHP_EOL;*/
+
     setHTTPStatus("500", "DB Connection error: " . mysqli_connect_error());
     exit;
 }
@@ -46,8 +44,6 @@ $url = isset($_GET['q']) ? $_GET['q'] : '';
 $url = rtrim($url, '/');
 $urlList = explode('/', $url);
 
-// echo json_encode($urlList[1]);
-
 $router = $urlList[0];
 $requestData = getData(getMethod());
 $method = getMethod();
@@ -56,8 +52,8 @@ if (file_exists(realpath(dirname(__FILE__)) . '/routers/' . $router . '.php')) {
     include_once 'routers/' . $router . '.php';
     route($method, $urlList, $requestData);
 } else {
-    echo "NOPE 404";
+    setHTTPStatus("404", "Not found");
 }
 mysqli_close($Link);
 return;
-// смерть БД  
+  

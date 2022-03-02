@@ -1,5 +1,5 @@
 <?php
-
+/*
 include_once "user/user_helper.php";
 include_once "headers/authorization.php";
 
@@ -33,7 +33,7 @@ function route($method, $urlList, $requestData)
                          setHTTPStatus("404", "There is no such path as 'auth/$urlList[1].'");
                     }
 
-                    // echo json_encode($userId);
+                   
                     break;
                case 'logout':
                     if (checkToken()) {
@@ -64,7 +64,7 @@ function route($method, $urlList, $requestData)
                     }
 
                     $surname = $requestData->body->surname;
-                    //$roleId = $requestData->body->roleId;
+                    
                     $userInsertRezult = $Link->query("INSERT INTO users( username, password, surname, name, roleId) VALUES('$username', '$password' , '$surname', '$name' , NULL)");
 
                     if (!$userInsertRezult) {
@@ -80,8 +80,7 @@ function route($method, $urlList, $requestData)
                          $tokenInsertRezult = $Link->query("INSERT INTO tokens( value, userId ) VALUES('$token', '$userId')");
 
                          if (!$tokenInsertRezult) {
-                              //400
-                              echo json_encode($Link->error);
+                              setHTTPStatus("404", "There is no such path as 'auth/$urlList[1].'");
                          } else {
 
                               echo json_encode(['token' => $token]);
@@ -96,7 +95,8 @@ function route($method, $urlList, $requestData)
                     break;
           }
      } else {
-          //400
+          
           setHTTPStatus("400", "Something went wrong in method $method.");
      }
 }
+*/

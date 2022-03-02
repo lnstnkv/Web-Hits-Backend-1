@@ -1,65 +1,70 @@
 <?php
-
+include_once "headers/authorization.php";
 include_once "user/user_helper.php";
 function route($method, $urlList, $requestData)
 {
     global $Link;
+    if (checkToken() == false) {
+        setHTTPStatus("403", "Permission denied. Authorization token are invalid");
+        return;
+    }
     switch ($method) {
         case 'GET':
 
-            $token = substr(getallheaders()['Authorization'], 7);
-            $userFromToken = $Link->query("SELECT userId from tokens where value='$token'")->fetch_assoc();
+            $userId = $urlList[1];
 
-
-            if (!is_null($userFromToken)) {
-                $userId = $urlList[1];
-
-                echo json_encode($urlList[1]);
-
-                if (is_null($userId)) {
-                    $sql = "SELECT * FROM users"; //GET /users//{userId}
-                } else {
-
-                    $sql = "SELECT userId, username,roleId,name,surname FROM users WHERE userId = '$userId'"; //GET /users//{userId}
-                }
-
-
-                $result = mysqli_query($Link, $sql);
-                $users = mysqli_fetch_all($result, MYSQLI_ASSOC);
-                if (!is_null($users)) {
-
-                    echo json_encode($users);
-                } else {
-
-                    setHTTPStatus("400", "Something went wrong in method /users");
+            if (is_null($userId)) {
+                if (!isAdmin()) {
+                    setHTTPStatus("403", "Available only for admin");
                     return;
-                }
-
-                return;
-
-                $userIdToken = $userFromToken['userId'];
-                $user = $Link->query("SELECT * FROM users WHERE userId = '$userIdToken'")->fetch_assoc();
-
-                if (!is_null($user)) {
-                    echo json_encode($user);
                 } else {
-                    setHTTPStatus("400", "Something went wrong in method /users/{userId}");
+                    $sql = "SELECT * FROM users"; //GET /users//{userId}
                 }
             } else {
-                echo "404: input data incorrect";
+                if (checkToken() != $userId) {
+                    setHTTPStatus("403", "Available only for admin");
+                    return;
+                }
+                $sql = "SELECT userId, username,roleId,name,surname FROM users WHERE userId = '$userId'"; //GET /users//{userId}
             }
+
+
+            $result = mysqli_query($Link, $sql);
+            $users = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            if (!is_null($users)) {
+
+                echo json_encode($users);
+            } else {
+
+                setHTTPStatus("400", "Bad request. If some data are strange");
+                return;
+            }
+
+            return;
+
+
+            $user = $Link->query("SELECT * FROM users WHERE userId = '$userId")->fetch_assoc();
+
+            if (!is_null($user)) {
+                echo json_encode($user);
+            } else {
+                setHTTPStatus("400", "Something went wrong in method /users/{userId}");
+            }
+
 
 
             break;
         case 'POST':
-            if ($urlList[1]){
+            if (!isAdmin()) {
+                setHTTPStatus("403", "Available only for admin");
+                return;
+            }
+            if ($urlList[1]) {
                 $roleId = $requestData->body->roleId;
                 $userRoleIdRezult = $Link->query("UPDATE users SET roleId=$roleId WHERE userId=$urlList[1]");
-                if(!$userRoleIdRezult)
-                {
-                    echo json_encode("400");
-                    echo json_encode($Link -> error);
-                }else{
+                if (!$userRoleIdRezult) {
+                    setHTTPStatus("400", "Something went wrong in method /users/{userId}");
+                } else {
                     setHTTPStatus("200", "ОК");
                 }
             }
@@ -92,8 +97,7 @@ function route($method, $urlList, $requestData)
 
                 $userUpdate = $Link->query("UPDATE users SET $name $surname $password WHERE userId=$urlList[1]");
                 if (!$userUpdate) {
-                    echo json_encode("400");
-                    // echo json_encode($Link -> error);
+                    setHTTPStatus("400", "Bad request. If some data are strange");
                 } else {
                     $userSelectIntoUpdate = mysqli_fetch_all($findUserResult, MYSQLI_ASSOC);
                     echo json_encode($userSelectIntoUpdate);
@@ -101,6 +105,10 @@ function route($method, $urlList, $requestData)
             }
             break;
         case 'DELETE':
+            if (!isAdmin()) {
+                setHTTPStatus("403", "Available only for admin");
+                return;
+            }
             if ($urlList[1]) {
                 $sql = "DELETE FROM users WHERE userId=$urlList[1]";
                 $userDelete = $Link->query($sql);
@@ -108,7 +116,6 @@ function route($method, $urlList, $requestData)
                     echo json_encode($Link->error);
                 } else {
                     setHTTPStatus("200", "ОК");
-                
                 }
             }
             break;

@@ -4,7 +4,6 @@ function postOutput($id)
 {
 
     $input = $_FILES["output"]; 
-    echo json_encode($input);
 
     if ($input["type"] != "text/plain") {
         setHTTPStatus("400", "Wrong file format");
